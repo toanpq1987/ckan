@@ -350,12 +350,17 @@ def resource_create(context, data_dict):
     resource = updated_pkg_dict['resources'][-1]
 
     print("ToanPQ call the docker to run a get output")
-    idl_file_path  = data_dict.get('file_idl', '')
-    network_config_path = data_dict.get('network_config','')
+    idl_file_path  = data_dict.get('file_idl', None)
+    network_config_path = data_dict.get('network_config',None)
     print("toanpq idl_file = {}, nw_config = {}".format(idl_file_path, network_config_path))
-    stream = os.popen('sudo docker run --net=pubnet --rm -v "$PWD:$PWD" -w "$PWD" opendds-ckan python3 ./source/run.py run -t subscriber -i {} -n {}'.format(idl_file_path,network_config_path))
-    output = stream.read()
-    print("output of docker = {}".format(output))
+    if len(idl_file_path) != 0 and len(network_config_path) != 0 :
+        cwd = os.getcwd()
+        os.chdir("/home/notarge/working/opendds-ckan")
+        os.popen('docker run --net=pubnet --rm -v "$PWD:$PWD" -w "$PWD" opendds-ckan python3 ./source/run.py run -t subscriber -i {} -n {}'.format(idl_file_path,network_config_path))
+        # output = stream.read()
+        # print("output of docker = {}".format(output))
+        print("Started the docker")
+        os.chdir(cwd)
 
     #  Add the default views to the new resource
     logic.get_action('resource_create_default_resource_views')(
