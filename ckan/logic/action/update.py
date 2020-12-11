@@ -6,6 +6,7 @@ import logging
 import datetime
 import time
 import json
+import os
 
 from ckan.common import config
 import ckan.common as converters
@@ -107,6 +108,22 @@ def resource_update(context, data_dict):
             raise ValidationError(e.error_dict['resources'][n])
         except (KeyError, IndexError):
             raise ValidationError(e.error_dict)
+
+    print("ToanPQ EDIT call the docker to run a get output")
+    idl_file_path  = data_dict.get('file_idl', '')
+    network_config_path = data_dict.get('network_config','')
+    print("toanpq idl_file = {}, nw_config = {}".format(idl_file_path, network_config_path))
+    cwd = os.getcwd()
+    os.chdir("/home/notarge/working/opendds-ckan")
+    #call command
+    
+    cmd_docker = 'sudo docker run --net=pubnet --rm -v "$PWD:$PWD" -w $PWD opendds-ckan python3 ./source/run.py run -t subscriber -i {} -n {}'.format(idl_file_path,network_config_path)
+    print("cmd_docker = {}".format(cmd_docker))
+    stream = os.popen(cmd_docker)
+    output = stream.read()
+
+    print("output of docker = {}".format(output))
+    os.chdir(cwd)
 
     resource = _get_action('resource_show')(context, {'id': id})
 

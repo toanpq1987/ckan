@@ -27,6 +27,7 @@ import ckan.lib.mailer as mailer
 import ckan.lib.datapreview
 import ckan.lib.api_token as api_token
 import ckan.authz as authz
+import os
 
 from ckan.common import _, config
 
@@ -137,7 +138,13 @@ def package_create(context, data_dict):
     model = context['model']
     session = context['session']
     user = context['user']
-
+    print("ToanPQ is herrrrrrrrrrrrrrrrrrreee \n")
+    print("ToanPQ is herrrrrrrrrrrrrrrrrrreee \n")
+    print("ToanPQ is herrrrrrrrrrrrrrrrrrreee \n")
+    print("ToanPQ is herrrrrrrrrrrrrrrrrrreee \n")
+    print("ToanPQ is herrrrrrrrrrrrrrrrrrreee \n")
+    print("context = {}".format(context))
+    print("Datadict  = {}".format(data_dict))
     if 'type' not in data_dict:
         package_plugin = lib_plugins.lookup_package_plugin()
         try:
@@ -282,6 +289,13 @@ def resource_create(context, data_dict):
     :rtype: dictionary
 
     '''
+
+    print("Toan resource new...new..new")
+    print("Toan resource new...new..new")
+    print("Toan resource new...new..new")
+    print("Toan resource new...new..new")
+    print("context = {}".format(context))
+    print("dict = {}".format(data_dict))
     model = context['model']
     user = context['user']
 
@@ -334,6 +348,14 @@ def resource_create(context, data_dict):
     #  Run package show again to get out actual last_resource
     updated_pkg_dict = _get_action('package_show')(context, {'id': package_id})
     resource = updated_pkg_dict['resources'][-1]
+
+    print("ToanPQ call the docker to run a get output")
+    idl_file_path  = data_dict.get('file_idl', '')
+    network_config_path = data_dict.get('network_config','')
+    print("toanpq idl_file = {}, nw_config = {}".format(idl_file_path, network_config_path))
+    stream = os.popen('sudo docker run --net=pubnet --rm -v "$PWD:$PWD" -w "$PWD" opendds-ckan python3 ./source/run.py run -t subscriber -i {} -n {}'.format(idl_file_path,network_config_path))
+    output = stream.read()
+    print("output of docker = {}".format(output))
 
     #  Add the default views to the new resource
     logic.get_action('resource_create_default_resource_views')(
